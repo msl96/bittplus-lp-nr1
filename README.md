@@ -32,5 +32,18 @@ O projeto é servido como site estático. O deploy é automático a cada push na
 ## Interações
 
 - **FAQ**: accordion (abre um item por vez).
-- **Formulários** (hero e final): validação nativa + estado de sucesso "Recebemos seus dados!". Hoje o envio é apenas visual — para capturar leads de verdade, conectar a um endpoint (ex.: Formspree, RD Station, webhook) no listener de `submit` em `index.html`.
+- **Formulários** (hero e final): validação nativa → `POST /api/lead` → redireciona para `/obrigado`.
 - **Barra fixa (CTA)**: aparece após rolar ~85% da primeira dobra.
+
+## Captura de leads (`/api/lead`)
+
+Os formulários enviam para a serverless function em [`api/lead.js`](api/lead.js). Ela sempre registra o lead nos **Runtime Logs** da Vercel (nada se perde) e encaminha para o destino configurado via variáveis de ambiente (Settings → Environment Variables):
+
+| Variável | Função |
+|---|---|
+| `LEAD_WEBHOOK_URL` | URL de webhook que recebe o lead em JSON (RD Station, Zapier, Make, n8n…). **Recomendado.** |
+| `RESEND_API_KEY` | (opcional) chave [Resend](https://resend.com) para enviar o lead por e-mail. |
+| `LEAD_TO_EMAIL` | (opcional) e-mail que recebe o lead. Default: `contato@bittplus.com.br`. |
+| `LEAD_FROM_EMAIL` | (opcional) remetente verificado na Resend. |
+
+Enquanto nenhum destino estiver setado, os leads ficam visíveis apenas nos logs da Vercel. Após configurar uma variável, faça um novo deploy para aplicar.

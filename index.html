@@ -82,7 +82,7 @@
           <div class="form-body">
             <h2 style="font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(19px,2.4vw,23px);line-height:1.15;color:#fff;margin:0">Agende seu diagnóstico gratuito</h2>
             <p style="color:#a6a496;font-size:13.5px;margin:8px 0 0">Leva menos de 1 minuto. Sem compromisso.</p>
-            <form style="display:flex;flex-direction:column;gap:13px;margin-top:20px" novalidate>
+            <form style="display:flex;flex-direction:column;gap:13px;margin-top:20px" novalidate data-origem="hero">
               <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#8f8d7f">Nome</label><input required name="nome" placeholder="Seu nome" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px"></div>
               <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#8f8d7f">Empresa</label><input required name="empresa" placeholder="Nome da empresa" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px"></div>
               <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#8f8d7f">E-mail corporativo</label><input required type="email" name="email" placeholder="voce@empresa.com.br" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px"></div>
@@ -254,7 +254,7 @@
           </div>
           <div class="form-body">
             <h3 style="font-family:'Archivo',sans-serif;font-weight:800;font-size:clamp(19px,2.4vw,23px);color:#fff;margin:0">Agende seu diagnóstico gratuito</h3>
-            <form style="display:flex;flex-direction:column;gap:13px;margin-top:18px" novalidate>
+            <form style="display:flex;flex-direction:column;gap:13px;margin-top:18px" novalidate data-origem="final">
               <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#8f8d7f">Nome</label><input required name="nome" placeholder="Seu nome" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px"></div>
               <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#8f8d7f">Empresa</label><input required name="empresa" placeholder="Nome da empresa" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px"></div>
               <div style="display:flex;flex-direction:column;gap:6px"><label style="font-size:11px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#8f8d7f">E-mail corporativo</label><input required type="email" name="email" placeholder="voce@empresa.com.br" style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.14);border-radius:10px;padding:12px 14px;color:#fff;font-size:15px"></div>
@@ -315,12 +315,35 @@
     });
   });
 
-  // Form submit -> success state
+  // Form submit -> envia o lead para /api/lead e redireciona para /obrigado
   document.querySelectorAll('[data-form] form').forEach(function (form) {
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (!form.checkValidity()) { form.reportValidity(); return; }
-      form.closest('[data-form]').classList.add('sent');
+
+      var btn = form.querySelector('[data-cta]');
+      if (btn) { btn.disabled = true; btn.style.opacity = '0.7'; btn.textContent = 'Enviando…'; }
+
+      var lead = {
+        nome: (form.nome && form.nome.value) || '',
+        empresa: (form.empresa && form.empresa.value) || '',
+        email: (form.email && form.email.value) || '',
+        whatsapp: (form.whatsapp && form.whatsapp.value) || '',
+        colaboradores: (form.colaboradores && form.colaboradores.value) || '',
+        origem: form.getAttribute('data-origem') || 'landing-nr1'
+      };
+
+      var done = function () { window.location.href = '/obrigado'; };
+
+      fetch('/api/lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(lead)
+      }).then(done).catch(function () {
+        // Fallback: se a rede falhar, ainda mostra o estado de sucesso inline
+        form.closest('[data-form]').classList.add('sent');
+        if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+      });
     });
   });
 
