@@ -66,7 +66,16 @@ export default async function handler(req, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(lead),
-      }).catch((err) => console.error('[LEAD] webhook falhou:', err))
+      })
+        .then(async (r) => {
+          // fetch não rejeita em 4xx/5xx: é preciso checar o status explicitamente
+          if (r.ok) {
+            console.log('[LEAD] webhook OK:', r.status);
+          } else {
+            console.error('[LEAD] webhook recusou:', r.status, (await r.text()).slice(0, 300));
+          }
+        })
+        .catch((err) => console.error('[LEAD] webhook falhou (rede):', err))
     );
   }
 
