@@ -22,14 +22,32 @@ export default async function handler(req, res) {
   }
   body = body || {};
 
+  const str = (v) => String(v || '').trim();
+
   const lead = {
-    nome: String(body.nome || '').trim(),
-    empresa: String(body.empresa || '').trim(),
-    email: String(body.email || '').trim(),
-    whatsapp: String(body.whatsapp || '').trim(),
-    colaboradores: String(body.colaboradores || '').trim(),
-    origem: String(body.origem || 'landing-nr1').trim(),
+    nome: str(body.nome),
+    empresa: str(body.empresa),
+    email: str(body.email),
+    whatsapp: str(body.whatsapp),
+    colaboradores: str(body.colaboradores),
+    origem: str(body.origem) || 'landing-nr1',
     recebido_em: new Date().toISOString(),
+
+    // Atribuição de campanha
+    utm_source: str(body.utm_source),
+    utm_medium: str(body.utm_medium),
+    utm_campaign: str(body.utm_campaign),
+    utm_term: str(body.utm_term),
+    utm_content: str(body.utm_content),
+    gclid: str(body.gclid),
+    fbclid: str(body.fbclid),
+    referrer: str(body.referrer),
+    landing_page: str(body.landing_page),
+    pagina: str(body.pagina),
+
+    // Metadados da requisição
+    ip: str(req.headers['x-forwarded-for']).split(',')[0].trim(),
+    user_agent: str(req.headers['user-agent']),
   };
 
   // Validação mínima
@@ -62,7 +80,9 @@ export default async function handler(req, res) {
       `<p><b>E-mail:</b> ${esc(lead.email)}</p>` +
       `<p><b>WhatsApp:</b> ${esc(lead.whatsapp)}</p>` +
       `<p><b>Colaboradores:</b> ${esc(lead.colaboradores)}</p>` +
-      `<p><b>Origem:</b> ${esc(lead.origem)}</p>`;
+      `<p><b>Origem:</b> ${esc(lead.origem)}</p>` +
+      `<hr><p><b>Campanha:</b> ${esc(lead.utm_source || '—')} / ${esc(lead.utm_medium || '—')} / ${esc(lead.utm_campaign || '—')}</p>` +
+      `<p><b>Referrer:</b> ${esc(lead.referrer || '—')}</p>`;
     tasks.push(
       fetch('https://api.resend.com/emails', {
         method: 'POST',

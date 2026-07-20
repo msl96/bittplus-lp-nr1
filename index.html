@@ -315,6 +315,28 @@
     });
   });
 
+  // Captura de UTMs / parâmetros de campanha.
+  // Guarda em sessionStorage para sobreviver à navegação (ex.: ir e voltar da /obrigado).
+  var tracking = (function () {
+    var KEYS = ['utm_source','utm_medium','utm_campaign','utm_term','utm_content','gclid','fbclid'];
+    var data = {};
+    try { data = JSON.parse(sessionStorage.getItem('bp_tracking') || '{}'); } catch (e) { data = {}; }
+
+    var params = new URLSearchParams(window.location.search);
+    KEYS.forEach(function (k) {
+      var v = params.get(k);
+      if (v) data[k] = v;            // parâmetro da URL sempre sobrescreve o salvo
+      else if (!data[k]) data[k] = ''; // garante a chave presente no payload
+    });
+
+    // Primeira página e referrer originais da sessão
+    if (!data.landing_page) data.landing_page = window.location.href.split('#')[0];
+    if (!data.referrer) data.referrer = document.referrer || '';
+
+    try { sessionStorage.setItem('bp_tracking', JSON.stringify(data)); } catch (e) {}
+    return data;
+  })();
+
   // Form submit -> envia o lead para /api/lead e redireciona para /obrigado
   document.querySelectorAll('[data-form] form').forEach(function (form) {
     form.addEventListener('submit', function (e) {
@@ -330,7 +352,17 @@
         email: (form.email && form.email.value) || '',
         whatsapp: (form.whatsapp && form.whatsapp.value) || '',
         colaboradores: (form.colaboradores && form.colaboradores.value) || '',
-        origem: form.getAttribute('data-origem') || 'landing-nr1'
+        origem: form.getAttribute('data-origem') || 'landing-nr1',
+        utm_source: tracking.utm_source || '',
+        utm_medium: tracking.utm_medium || '',
+        utm_campaign: tracking.utm_campaign || '',
+        utm_term: tracking.utm_term || '',
+        utm_content: tracking.utm_content || '',
+        gclid: tracking.gclid || '',
+        fbclid: tracking.fbclid || '',
+        referrer: tracking.referrer || '',
+        landing_page: tracking.landing_page || '',
+        pagina: window.location.href.split('#')[0]
       };
 
       var done = function () { window.location.href = '/obrigado'; };
