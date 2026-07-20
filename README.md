@@ -47,3 +47,22 @@ Os formulários enviam para a serverless function em [`api/lead.js`](api/lead.js
 | `LEAD_FROM_EMAIL` | (opcional) remetente verificado na Resend. |
 
 Enquanto nenhum destino estiver setado, os leads ficam visíveis apenas nos logs da Vercel. Após configurar uma variável, faça um novo deploy para aplicar.
+
+### Payload enviado ao webhook
+
+```json
+{
+  "nome": "", "empresa": "", "email": "", "whatsapp": "", "colaboradores": "",
+  "origem": "hero | final", "recebido_em": "ISO-8601",
+  "utm_source": "", "utm_medium": "", "utm_campaign": "", "utm_term": "", "utm_content": "",
+  "gclid": "", "fbclid": "", "referrer": "", "landing_page": "", "pagina": "",
+  "ip": "", "user_agent": ""
+}
+```
+
+Os parâmetros de campanha são lidos da query string na primeira visita e guardados em
+`sessionStorage`, então sobrevivem à navegação dentro do site até o envio do formulário.
+
+> **n8n:** a URL `/webhook-test/...` só funciona com o editor aberto e escutando ("Execute workflow"),
+> e aceita **uma** chamada. Para valer em produção, ative o workflow e troque a env var para a
+> URL de produção (`/webhook/...`).
