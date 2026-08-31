@@ -29,7 +29,9 @@ export default async function handler(req, res) {
     empresa: str(body.empresa),
     email: str(body.email),
     whatsapp: str(body.whatsapp),
+    cargo: str(body.cargo),
     colaboradores: str(body.colaboradores),
+    qualificado: str(body.qualificado),
     origem: str(body.origem) || 'landing-nr1',
     recebido_em: new Date().toISOString(),
 
@@ -88,7 +90,9 @@ export default async function handler(req, res) {
       `<p><b>Empresa:</b> ${esc(lead.empresa)}</p>` +
       `<p><b>E-mail:</b> ${esc(lead.email)}</p>` +
       `<p><b>WhatsApp:</b> ${esc(lead.whatsapp)}</p>` +
+      `<p><b>Cargo/área:</b> ${esc(lead.cargo || '—')}</p>` +
       `<p><b>Colaboradores:</b> ${esc(lead.colaboradores)}</p>` +
+      `<p><b>Dentro do ICP:</b> ${lead.qualificado === '1' ? 'SIM' : 'não'}</p>` +
       `<p><b>Origem:</b> ${esc(lead.origem)}</p>` +
       `<hr><p><b>Campanha:</b> ${esc(lead.utm_source || '—')} / ${esc(lead.utm_medium || '—')} / ${esc(lead.utm_campaign || '—')}</p>` +
       `<p><b>Referrer:</b> ${esc(lead.referrer || '—')}</p>`;
