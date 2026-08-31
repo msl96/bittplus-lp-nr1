@@ -17,6 +17,8 @@ s.parentNode.insertBefore(t,s)}(window, document,'script',
 fbq('init', '607574045205504');
 fbq('track', 'PageView');
 fbq('track', 'Lead');
+// Lead dentro do ICP (empresa 50+ CLT + cargo RH/SST/Diretoria) — evento de otimização da campanha.
+try { if (new URLSearchParams(location.search).get('q') === '1') fbq('trackCustom', 'LeadQualificado'); } catch (e) {}
 </script>
 <noscript><img height="1" width="1" style="display:none"
 src="https://www.facebook.com/tr?id=607574045205504&ev=PageView&noscript=1"

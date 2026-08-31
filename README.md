@@ -8,7 +8,11 @@ Site estático, sem build: um único `index.html` com HTML/CSS/JS vanilla e imag
 
 ```
 .
-├── index.html        # página completa
+├── index.html        # landing page completa
+├── obrigado.html     # página de agradecimento (dispara os eventos de conversão do Pixel)
+├── privacidade.html  # política de privacidade / aviso LGPD
+├── termos.html       # termos de uso
+├── api/lead.js       # serverless function que recebe os leads
 ├── assets/           # logos e imagens
 └── vercel.json       # config de deploy (headers de cache)
 ```
@@ -52,13 +56,21 @@ Enquanto nenhum destino estiver setado, os leads ficam visíveis apenas nos logs
 
 ```json
 {
-  "nome": "", "empresa": "", "email": "", "whatsapp": "", "colaboradores": "",
+  "nome": "", "empresa": "", "email": "", "whatsapp": "",
+  "cargo": "", "colaboradores": "", "qualificado": "0 | 1",
   "origem": "hero | final", "recebido_em": "ISO-8601",
   "utm_source": "", "utm_medium": "", "utm_campaign": "", "utm_term": "", "utm_content": "",
   "gclid": "", "fbclid": "", "referrer": "", "landing_page": "", "pagina": "",
   "ip": "", "user_agent": ""
 }
 ```
+
+`qualificado` vale `"1"` quando o lead está no ICP (`colaboradores` em `51–200 | 201–500 | 500+` **e** `cargo` em RH/DHO, SESMT ou Diretoria); caso contrário `"0"`. Use esse campo no CRM para roteamento automático.
+
+### Rastreamento (Meta Pixel)
+
+- `index.html` dispara `PageView` na carga.
+- `obrigado.html` dispara `Lead` sempre e, quando a URL traz `?q=1` (lead no ICP), também dispara o evento customizado **`LeadQualificado`** — é esse o evento que a campanha de conversão do Meta deve otimizar.
 
 Os parâmetros de campanha são lidos da query string na primeira visita e guardados em
 `sessionStorage`, então sobrevivem à navegação dentro do site até o envio do formulário.
